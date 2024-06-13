@@ -1,0 +1,94 @@
+{
+  "builder_name": "parquet",
+  "citation": "",
+  "config_name": "default",
+  "dataset_name": "10k_prompts_ranked",
+  "dataset_size": 8711680,
+  "description": "",
+  "download_checksums": {
+    "hf://datasets/DIBT/10k_prompts_ranked@3a9e44c398d92681e58b5c8ad39502203a002bac/data/train-00000-of-00001.parquet": {
+      "num_bytes": 3579688,
+      "checksum": null
+    }
+  },
+  "download_size": 3579688,
+  "features": {
+    "prompt": {
+      "dtype": "string",
+      "id": "field",
+      "_type": "Value"
+    },
+    "quality": [
+      {
+        "user_id": {
+          "dtype": "string",
+          "id": "question",
+          "_type": "Value"
+        },
+        "value": {
+          "dtype": "string",
+          "id": "suggestion",
+          "_type": "Value"
+        },
+        "status": {
+          "dtype": "string",
+          "id": "question",
+          "_type": "Value"
+        }
+      }
+    ],
+    "metadata": {
+      "dtype": "string",
+      "id": "metadata",
+      "_type": "Value"
+    },
+    "avg_rating": {
+      "dtype": "float64",
+      "_type": "Value"
+    },
+    "num_responses": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "agreement_ratio": {
+      "dtype": "float64",
+      "_type": "Value"
+    },
+    "raw_responses": {
+      "feature": {
+        "dtype": "int64",
+        "_type": "Value"
+      },
+      "_type": "Sequence"
+    },
+    "kind": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "cluster_description": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "topic": {
+      "dtype": "string",
+      "_type": "Value"
+    }
+  },
+  "homepage": "",
+  "license": "",
+  "size_in_bytes": 12291368,
+  "splits": {
+    "train": {
+      "name": "train",
+      "num_bytes": 8711680,
+      "num_examples": 10331,
+      "dataset_name": "10k_prompts_ranked"
+    }
+  },
+  "version": {
+    "version_str": "0.0.0",
+    "major": 0,
+    "minor": 0,
+    "patch": 0
+  }
+}
