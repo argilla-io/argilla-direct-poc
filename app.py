@@ -5,7 +5,6 @@ from src import dataset
 from src import spaces
 
 
-
 def refresh_dataset_settings_view(
     columns,
     question_columns,
@@ -133,73 +132,115 @@ with gr.Blocks() as app:
                 )
 
                 # Field columns
-                field_columns_view = gr.Dropdown(
-                    label="Field Columns",
-                    info="Columns to be used as fields in the Argilla dataset",
-                    choices=dataset.load_columns(),
-                    multiselect=True,
-                    value=dataset.get_field_columns(),
-                    allow_custom_value=True,
-                )
-                field_columns_view.change(
-                    fn=lambda value: gr.update(choices=dataset.load_columns()),
-                    inputs=[field_columns_view],
-                    outputs=[field_columns_view],
-                )
+                with gr.Accordion(label="Fields", open=True):
+                    field_columns_view = gr.Dropdown(
+                        label="Column",
+                        info="Columns to be used as fields in the Argilla dataset",
+                        choices=dataset.load_columns(),
+                        multiselect=True,
+                        value=dataset.get_field_columns(),
+                        allow_custom_value=True,
+                    )
+                    field_columns_view.change(
+                        fn=lambda value: gr.update(value=[]),
+                        inputs=[field_columns_view],
+                        outputs=[field_columns_view],
+                    )
 
                 # Question columns
-                question_columns_view = gr.Dropdown(
-                    label="Question Columns",
-                    info="Columns to be used as question suggestions in the Argilla dataset",
-                    choices=dataset.load_columns(),
-                    multiselect=True,
-                    value=dataset.get_field_columns(),
-                    allow_custom_value=True,
-                )
 
-                question_columns_view.change(
-                    fn=lambda value: gr.update(choices=dataset.load_columns()),
-                    inputs=[question_columns_view],
-                    outputs=[question_columns_view],
-                )
+                with gr.Accordion(label="Questions", open=True):
+                    question_type = gr.Dropdown(
+                        label="Type",
+                        info="The type of question to be added to the Argilla dataset",
+                        choices=["Text", "Label", "Rating"],
+                    )
+                    question_column = gr.Dropdown(
+                        label="Column",
+                        info="Column in the hub dataset to be used as question suggestions in the Argilla dataset",
+                        choices=dataset.load_columns(),
+                        allow_custom_value=True,
+                    )
 
-                with gr.Accordion(label="Define New Questions", open=False):
-                    with gr.Group():
-                        with gr.Column():
-                            question_type = gr.Dropdown(
-                                label="Question Type",
-                                info="The type of question to be added to the Argilla dataset",
-                                choices=["Text", "Label", "Rating"],
-                            )
-                        with gr.Column():
-                            question_name = gr.Textbox(
-                                label="Question Name",
-                                info="The name of the question to be added to the Argilla dataset",
-                            )
-                        with gr.Column():
-                            gr.Button(value="Add Question").click(
-                                fn=lambda type, name, questions: questions
-                                + [(type, name)],
-                                inputs=[
-                                    question_type,
-                                    question_name,
-                                    question_columns_view,
-                                ],
-                                outputs=[question_columns_view],
-                            )
+                    question_name = gr.Textbox(
+                        label="Name",
+                        info="The name of the question to be added to the Argilla dataset",
+                    )
+                    question_column.select(
+                        fn=lambda value: value,
+                        inputs=[question_column],
+                        outputs=[question_name],
+                    )
+                    add_question_btn = gr.Button(value="Add Question")
+                    question_columns_view = gr.Dropdown(
+                        label="Question Columns",
+                        info="Columns to be used as question suggestions in the Argilla dataset",
+                        multiselect=True,
+                        allow_custom_value=True,
+                        value=[],
+                    )
 
-                with gr.Accordion(label="Define Metadata and Vectors", open=False):
+                    # question_columns_view.change(
+                    #     fn=lambda value: gr.update(value=[]),
+                    #     inputs=[question_columns_view],
+                    #     outputs=[question_columns_view],
+                    # )
+
+                    add_question_btn.click(
+                        fn=lambda type, name, column, questions: questions
+                        + [(type, name, column)],
+                        inputs=[
+                            question_type,
+                            question_name,
+                            question_column,
+                            question_columns_view,
+                        ],
+                        outputs=[question_columns_view],
+                    )
+
+                # Metadata columns
+
+                with gr.Accordion(label="Metadata", open=True):
+                    metadata_type = gr.Dropdown(
+                        label="Type",
+                        info="The type of metadata to be added to the Argilla dataset",
+                        choices=["Integer", "Float", "Term"],
+                    )
+                    metadata_column = gr.Dropdown(
+                        label="Column",
+                        info="Column in the hub dataset to be used as metadata suggestions in the Argilla dataset",
+                        choices=dataset.load_columns(),
+                        allow_custom_value=True,
+                    )
+
+                    metadata_name = gr.Textbox(
+                        label="Name",
+                        info="The name of the metadata to be added to the Argilla dataset",
+                    )
+                    metadata_column.select(
+                        fn=lambda value: value,
+                        inputs=[metadata_column],
+                        outputs=[question_name],
+                    )
+                    add_metadata_btn = gr.Button(value="Add Metadata")
                     metadata_columns_view = gr.Dropdown(
                         label="Metadata Columns",
-                        info="Columns to be used as metadata in the Argilla dataset",
-                        choices=dataset.load_columns(),
+                        info="Columns to be used as metadata suggestions in the Argilla dataset",
                         multiselect=True,
+                        allow_custom_value=True,
+                        value=[],
                     )
-                    vector_columns_view = gr.Dropdown(
-                        label="Vector Columns",
-                        info="Columns to be used as vectors in the Argilla dataset",
-                        choices=dataset.load_columns(),
-                        multiselect=True,
+
+                    add_metadata_btn.click(
+                        fn=lambda type, name, column, metadata: metadata
+                        + [(type, name, column)],
+                        inputs=[
+                            metadata_type,
+                            metadata_name,
+                            metadata_column,
+                            metadata_columns_view,
+                        ],
+                        outputs=[metadata_columns_view],
                     )
 
                 n_records = gr.Slider(1, 10000, 100, label="Number of Records")
@@ -258,7 +299,7 @@ with gr.Blocks() as app:
             field_columns_view,
             question_columns_view,
             metadata_columns_view,
-            vector_columns_view,
+            # vector_columns_view,
         ],
         outputs=[records_view, mapping],
     )

@@ -11,13 +11,14 @@ from src.dataset import (
     is_float,
     get_feature_values,
     get_feature_labels,
+    load_repo_id,
 )
 
 client = rg.Argilla(api_url="http://localhost:6900", api_key="owner.apikey")
 
 
 def define_dataset_setting(
-    dataset_name, field_columns, question_columns, metadata_columns, vector_columns
+    dataset_name, field_columns, question_columns, metadata_columns
 ):
     split = load_split()
 
@@ -31,17 +32,7 @@ def define_dataset_setting(
         mapping[column_name] = field_column_name
 
     # Add question columns
-    for column_name in question_columns:
-        if isinstance(column_name, (list, tuple)):
-            question_type, column_name = column_name
-        elif is_label(split, column_name):
-            question_type = "Label"
-        elif is_rating(split, column_name):
-            question_type = "Rating"
-        else:
-            question_type = "Text"
-
-        question_column_name = f"{column_name}_question"
+    for question_type, question_column_name, column_name in question_columns:
         if question_type == "Label":
             values = get_feature_values(split, column_name)
             titles = get_feature_labels(split, column_name)
@@ -63,29 +54,21 @@ def define_dataset_setting(
     if not metadata_columns:
         metadata_columns = []
 
-    for column_name in metadata_columns:
-        metadata_column_name = f"{column_name}_metadata"
-        if is_int(split, column_name):
-            metadata.append(rg.IntegerMetadataProperty(name=metadata_column_name))
-        elif is_float(split, column_name):
-            metadata.append(rg.FloatMetadataProperty(name=metadata_column_name))
-        elif is_label:
+    for metadata_type, metadata_name, column_name in metadata_columns:
+        if metadata_type == "Integer":
+            metadata.append(rg.IntegerMetadataProperty(name=metadata_name))
+        elif metadata_type == "Float":
+            metadata.append(rg.FloatMetadataProperty(name=metadata_name))
+        elif metadata_type == "Term":
             values = list(map(str, get_feature_values(split, column_name)))
             metadata.append(
-                rg.TermsMetadataProperty(name=metadata_column_name, options=values)
+                rg.TermsMetadataProperty(name=metadata_name, options=values)
             )
-        mapping[column_name] = metadata_column_name
+        if column_name in mapping:
+            column_name = f"{column_name}__"
+        mapping[column_name] = metadata_name
 
-    # Add vector columns
-    if not vector_columns:
-        vector_columns = []
-
-    for column_name in vector_columns:
-        vectors.append(rg.VectorField(name=column_name))
-
-    settings = rg.Settings(
-        fields=fields, questions=questions, metadata=metadata, vectors=vectors
-    )
+    settings = rg.Settings(fields=fields, questions=questions, metadata=metadata)
 
     dataset = rg.Dataset(name=dataset_name, settings=settings, client=client)
 
