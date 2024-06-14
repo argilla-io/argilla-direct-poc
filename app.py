@@ -98,6 +98,7 @@ with gr.Blocks() as app:
                 argilla_space_name = gr.Textbox(
                     label="Argilla Space Name", value=f"{dataset_name.value}_argilla"
                 )
+                argilla_space_url = gr.Textbox(label="Argilla Space URL")
 
                 create_argilla_space_btn = gr.Button(value="2️⃣ Create Argilla Space")
 
@@ -283,7 +284,7 @@ with gr.Blocks() as app:
     create_argilla_space_btn.click(
         fn=spaces.create_argilla_space,
         inputs=[argilla_space_name],
-        outputs=[records_view],
+        outputs=[argilla_space_url],
     )
 
     delete_dataset_btn.click(
@@ -299,6 +300,7 @@ with gr.Blocks() as app:
             field_columns_view,
             question_columns_view,
             metadata_columns_view,
+            argilla_space_url,
             # vector_columns_view,
         ],
         outputs=[records_view, mapping],
@@ -306,7 +308,7 @@ with gr.Blocks() as app:
 
     add_records_btn.click(
         fn=argilla_utils.add_records,
-        inputs=[argilla_dataset_name_view, mapping, n_records],
+        inputs=[argilla_dataset_name_view, mapping, n_records, argilla_space_url],
         outputs=[records_view],
     )
 
