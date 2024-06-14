@@ -1,1 +1,1 @@
-pip install "git+https://github.com/argilla-io/argilla-python.git@main"
+argilla @ git+https://github.com/argilla-io/argilla.git@feat/v2.0.0#egg=argilla&subdirectory=argilla
